@@ -19,12 +19,15 @@ class Game {
     }
   }
 
-
   makeHtmlBoard() {
     const board = document.getElementById('board');
+    board.innerHTML = ''
   
     const top = document.createElement('tr');
     top.setAttribute('id', 'column-top');
+
+    this.handleGameClick = this.handleClick.bind(this);
+
     top.addEventListener('click', this.handleClick);
   
     for (let x = 0; x < this.width; x++) {
@@ -74,7 +77,7 @@ class Game {
 
     
       this.players = [player1, player2];
-      this.currPlayer = 0; 
+      this.currPlayerIndex = 0;
 
     if (startButton.innerText === 'Reset Board' || startButton.innerText === 'Let\'s Play Again!'){
       this.resetGame();
@@ -87,19 +90,20 @@ class Game {
 
   findSpotForCol(x) {
     for (let y = this.height - 1; y >= 0; y--) {
-      if (!this.board[y][x]) {
+      // Log the current state before checking if it's undefined
+      console.log(`Checking spot for column ${x}, row ${y}: `, this.board[y][x]);
+      if (this.board[y][x] === undefined) { // Check if the spot is taken
         return y;
       }
     }
-    return null;
+    return null; // No available spots
   }
 
   placeInTable(y, x) {
+    console.log(`Placing piece for player ${this.currPlayerIndex} at row ${y}, column ${x}`);
     const piece = document.createElement('div');
     piece.classList.add('piece');
     piece.style.backgroundColor = this.players[this.currPlayerIndex].color;
-  
-    piece.style.top = -50 * (y + 2);
 
     const spot = document.getElementById(`${y}-${x}`);
     spot.append(piece);
@@ -115,7 +119,7 @@ class Game {
     
     this.makeBoard();
     this.makeHtmlBoard();
-    this.currPlayer = 1;
+    this.currPlayerIndex = 0;
     this.gameOver = false;
     this.updateStartButtonText('Let\'s Play!');
   }
@@ -129,29 +133,35 @@ class Game {
   }
 
   handleClick(evt) {
-    const x = +evt.target.id;
-    const y = this.findSpotForCol(x);
-    if (y === null) {
-      return;
-    }
-
+    // Prevent further moves if the game is over
     if (this.gameOver) {
       return;
     }
   
-    this.board[y][x] = this.currPlayer;
+    const x = +evt.target.id;
+    const y = this.findSpotForCol(x);
+  
+    // If the column is full, no more pieces can be placed there
+    if (y === null) {
+      return;
+    }
+  
+    // Place the piece in the table and update the board state
+    this.board[y][x] = this.currPlayerIndex;
     this.placeInTable(y, x);
-    
+  
+    // Check for a win or a tie
     if (this.checkForWin()) {
       this.gameOver = true;
-      return this.endGame(`${this.currPlayer.name} won!`);
-    }
-    
-    if (this.board.every(row => row.every(cell => cell))) {
+      this.endGame(`${this.players[this.currPlayerIndex].name} won!`);
+      return;
+    } else if (this.board.every(row => row.every(cell => cell !== undefined))) {
       this.gameOver = true;
-      return this.endGame('It\'s a Tie!');
+      this.endGame('It\'s a Tie!');
+      return;
     }
-      
+  
+    // Switch players
     this.currPlayerIndex = this.currPlayerIndex === 0 ? 1 : 0;
   }
 
@@ -162,9 +172,9 @@ class Game {
         y < this.height &&
         x >= 0 &&
         x < this.width &&
-        this.board[y][x] === this.currPlayer
+        this.board[y][x] === this.currPlayerIndex
     );
-  }
+  }; 
 
   checkForWin() {
     for (let y = 0; y < this.height; y++) {
@@ -180,10 +190,9 @@ class Game {
       }
     }
   }
+}
 
-  };
-
-  class Player{
+class Player{
     constructor(color, name) {
       this.color = color;
       this.name = name;

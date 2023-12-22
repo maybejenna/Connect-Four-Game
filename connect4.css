@@ -1,4 +1,13 @@
 /* game board table */
+html {
+font-family: 'Passion One', sans-serif;
+}
+
+#game{
+  margin-left: auto;
+  margin-right: auto;
+  justify-self: center\;
+}
 
 #board td {
   width: 50px;
@@ -6,7 +15,6 @@
   border: solid 1px #666;
 }
 
-/* pieces are div within game table cells: draw as colored circles */
 
 .piece {
   margin: 5px;
@@ -34,7 +42,12 @@
 }
 
 
+input {
+
+}
+
 #startButton {
+  margin: 25px;
   border-radius: 12px;
   height: 40px;
   width: 100px;
