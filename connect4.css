@@ -76,12 +76,12 @@ text-align: center;
 }
 
 
-
-button {
+button , #startButton {
   margin: 25px;
   border-radius: 12px;
-  height: 40px;
-  width: 100px;
+  height: 50px;
+  width: 200px;
+  justify-content: center;
   line-height: 40px; 
   border-style: none;
   text-align: center;
